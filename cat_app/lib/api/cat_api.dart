@@ -2,7 +2,7 @@
 
 import 'network.dart';
 
-const String apiKey = '81ee1886-e73d-4c3a-88ba-fa53b5c42e05';
+const String apiKey = '';
 const String catAPIURL = 'https://api.thecatapi.com/v1/breeds?';
 const String catImageAPIURL = 'https://api.thecatapi.com/v1/images/search?';
 const String breedString = 'breed_id=';
