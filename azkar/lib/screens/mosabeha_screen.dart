@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:getflutter/components/progress_bar/gf_progress_bar.dart';
 
 class Mosabeha extends StatefulWidget {
   @override
@@ -19,22 +18,19 @@ class _MosabehaState extends State<Mosabeha> {
         Container(
           alignment: Alignment.center,
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: IconButton(
-            //splashColor: Colors.orangeAccent,
-            onPressed: () {
+          child: InkWell(
+            borderRadius: BorderRadius.circular(35),
+            onTap: (){
               setState(() {
-                op = 0.0;
                 count++;
-                op = 0.5;
               });
             },
-            icon: ImageIcon(
+            child: ImageIcon(
               AssetImage(
                 'assets/icons/finger.png',
               ),
               color: Colors.amber[900],
-              size: 500,
+            size: 65,
             ),
           ),
         ),
@@ -43,7 +39,7 @@ class _MosabehaState extends State<Mosabeha> {
           child: Text(
             "$count",
             style: TextStyle(
-              fontSize: 100,
+              fontSize: 90,
             ),
           ),
         ),

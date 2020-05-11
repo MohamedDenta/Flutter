@@ -28,6 +28,8 @@ dependencies:
   flutter_staggered_animations: ^0.1.2
   google_fonts_arabic: ^1.1.7
   getflutter: ^1.0.7
+  splashscreen: ^1.2.0
+  flutter_local_notifications: ^1.4.3
   
 
 dev_dependencies:
@@ -53,6 +55,7 @@ flutter:
   assets:
    - assets/icons/
    - assets/images/
+   - assets/files/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

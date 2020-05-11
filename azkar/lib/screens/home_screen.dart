@@ -1,8 +1,11 @@
 import 'package:azkar/screens/fehris_screen.dart';
 import 'package:azkar/screens/mosabeha_screen.dart';
+import 'package:azkar/utils/constants.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts_arabic/fonts.dart';
+
+import 'setting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -26,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor:  Colors.white,
       ),
       //drawer: MyDrawer(),
       body: Container(
@@ -51,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Mosabeha();
         break;
       // case 2:
-      //   return FavoritesScreen();
+      //   return SettingScreen();
       //   break;
 
       default:
@@ -84,6 +87,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           title: Text('المسبحة'),
         ),
+        //  BottomNavigationBarItem(
+        //   icon: Icon(Icons.settings),
+        //   title: Text('الضبط'),
+        //   activeIcon: Icon(
+        //     Icons.settings,
+        //     color: Colors.deepOrange,
+        //   ),
+        // ),
         // BottomNavigationBarItem(
         //   icon: Icon(Icons.star),
         //   title: Text('المفضلة'),

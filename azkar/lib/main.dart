@@ -1,7 +1,9 @@
-import 'package:azkar/screens/imageslider_screen.dart';
+import 'package:azkar/models/base.dart';
+import 'package:azkar/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'screens/home_screen.dart';
+
+import 'screens/imageslider_screen.dart';
 import 'utils/theme.dart';
 
 void main() => runApp(MyApp());
@@ -17,7 +19,8 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: [
-        Locale("ar", "AE"), 
+        Locale("ar", "AE"),
+        Locale("en", "US"),
       ],
       locale: Locale("ar", "AE"),
       theme: myThemeData,
@@ -25,8 +28,8 @@ class MyApp extends StatelessWidget {
 
       initialRoute: "/",
       routes: {
-        "/": (context) => HomeScreen(),
-         "/image-slider": (context) => ImageSlider(),
+        "/": (context) => Splashscreen(),
+        "/image-slider": (context) => ImageSlider(),
       },
     );
   }
