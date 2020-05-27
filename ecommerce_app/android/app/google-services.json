@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "100447044434",
+    "firebase_url": "https://ecommerce-81637.firebaseio.com",
+    "project_id": "ecommerce-81637",
+    "storage_bucket": "ecommerce-81637.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100447044434:android:af274415866df33300f08b",
+        "android_client_info": {
+          "package_name": "com.denta.ecommerce_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100447044434-7c3aqnoli2sigcmo0l9lcjp9v3q24t00.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.denta.ecommerce_app",
+            "certificate_hash": "7d9bb9d5615f8425eb7031b258575586be123a6e"
+          }
+        },
+        {
+          "client_id": "100447044434-v8fq9drbbe0agae07jinnm0dq9bro6i3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUB6WGVWGaAAQ6LJpQ4BoK4xY5NVklixc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100447044434-v8fq9drbbe0agae07jinnm0dq9bro6i3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
