@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "763887628840",
+    "firebase_url": "https://restaurants-finder-41965.firebaseio.com",
+    "project_id": "restaurants-finder-41965",
+    "storage_bucket": "restaurants-finder-41965.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763887628840:android:c67e39158273cbd480bb1d",
+        "android_client_info": {
+          "package_name": "com.denta.zomato_api"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763887628840-uv0ckem9vr90rhlqk3if69i63dc8j4sc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.denta.zomato_api",
+            "certificate_hash": "0275f0f2333ecaa0012b19a6a6492195ed1054f4"
+          }
+        },
+        {
+          "client_id": "763887628840-t33vh5j8j33q76el6p1bpbn240r2dfk2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBl0uynlc5Tyt14JcWUJ4ZXr7WH2qk2URc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "763887628840-t33vh5j8j33q76el6p1bpbn240r2dfk2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
