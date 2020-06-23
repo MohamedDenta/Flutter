@@ -21,6 +21,7 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
   SharedPreferences sharedPreferences;
   bool _isLoading = false;
   bool isLoged = false;
+
   @override
   void initState() {
     super.initState();
@@ -53,12 +54,12 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
       ),
       body: Stack(
         children: <Widget>[
-          Image.asset(
-            'assets/images/lg.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+          // Image.asset(
+          //   'assets/images/lg.png',
+          //   fit: BoxFit.cover,
+          //   width: double.infinity,
+          //   height: double.infinity,
+          // ),
           Container(
             color: Colors.black.withOpacity(0.8),
             width: double.infinity,
@@ -261,7 +262,13 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
                                         fontSize: 20,
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      _isLoading = true;
+                                      FBApi.signInWithGoogle().then((onValue){
+                                        _isLoading = false;
+                                        Navigator.pushReplacementNamed(context, '/');
+                                      });
+                                    },
                                   )),
                             ),
                           ),

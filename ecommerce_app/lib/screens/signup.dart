@@ -42,12 +42,12 @@ class _SignUpState extends State<SignUp> {
       ),
       body: Stack(
         children: <Widget>[
-          Image.asset(
-            'assets/images/lg.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+          // Image.asset(
+          //   'assets/images/lg.png',
+          //   fit: BoxFit.cover,
+          //   width: double.infinity,
+          //   height: double.infinity,
+          // ),
           Container(
             color: Colors.black.withOpacity(0.8),
             width: double.infinity,
