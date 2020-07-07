@@ -1,8 +1,18 @@
+import 'dart:io';
+
+import 'package:ecommerce_app/enums/appbar_states.dart';
+import 'package:ecommerce_app/enums/connectivity_status.dart';
+import 'package:ecommerce_app/models/connectivity.dart';
+import 'package:ecommerce_app/models/firebase_provider.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
 import 'package:ecommerce_app/widgets/horizontal_list_view.dart';
 import 'package:ecommerce_app/widgets/products.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,8 +24,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SharedPreferences preferences;
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  String username;
+  String photoUrl;
+  File avatarImg;
+  FirebaseUser currentUser;
   Widget carousel = Container(
-    height: 200.0,
     child: new Carousel(
       boxFit: BoxFit.cover,
       images: [
@@ -31,62 +45,72 @@ class _HomeScreenState extends State<HomeScreen> {
       indicatorBgPadding: 2.0,
     ),
   );
+
+  bool isloading = false;
+
+  String email;
+
   @override
-  initState() {
-    // TODO: implement initState
+  void initState() {
+    avatarImg = null;
+
+    firebaseAuth.currentUser().then((onValue) {
+      if (onValue == null) {
+        Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        setState(() {
+          username = onValue.displayName;
+          photoUrl =
+              'https://lh3.googleusercontent.com/a-/AOh14GjRNDn2Z2BiLtKNwhTAq-BhwxM2LFTfsAA8_5bvMw=s96-c'; //onValue.photoUrl;
+          email = onValue.email;
+          currentUser = onValue;
+        });
+      }
+    });
     super.initState();
-    //  readPref();
   }
 
   @override
   Widget build(BuildContext context) {
+    final connectedBloc = Provider.of<ConnectivityService>(context);
+    final userBloc = Provider.of<FirebaseProvider>(context);
+    userBloc.getInstance();
+
     return Scaffold(
-      appBar: MyAppBar.getAppBar(context, 'HOME', 'Fashapp'),
+      appBar: connectedBloc.status == ConnectivityStatus.Offline
+          ? MyAppBar.getAppBar(
+              context, AppBarStatus.NoConnection, 'You are not connected')
+          : MyAppBar.getAppBar(context, AppBarStatus.Home, 'Denta'),
       drawer: getDrawer(),
-      body: Container(
-        child: ListView(
-          children: <Widget>[
-            carousel,
-            new Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Categories'),
-            ),
-            HorizontalList(),
-            new Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Recent products'),
-            ),
-            Container(height: 200, child: Products()),
-          ],
-        ),
-      ),
+      body: connectedBloc.status == ConnectivityStatus.Offline
+          ? getOfflineBody()
+          : getOnlineBody(),
     );
   }
 
+// Drawer
   Widget getDrawer() {
+    final userBloc = Provider.of<FirebaseProvider>(context);
     return new Drawer(
       child: ListView(
         children: <Widget>[
           new UserAccountsDrawerHeader(
-            accountName:
-                Text('account name'), //Text(preferences.getString('username')),
-            accountEmail: Text('m.n@email.com'),
-            currentAccountPicture: GestureDetector(
-              child: new CircleAvatar(
-                backgroundColor: Colors.black54,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            accountName: userBloc.user.name == null
+                ? Text('')
+                : Text(userBloc
+                    .user.name), //Text(preferences.getString('username')),
+            accountEmail: userBloc.user.email == null
+                ? Text('email')
+                : Text(userBloc.user.email),
+            currentAccountPicture: getPic(context, userBloc),
           ),
-          getListItem(
-              'HOME PAGE',
-              Icon(
-                Icons.home,
-                size: 30,
-              )),
+          // getListItem(
+          //   'HOME PAGE',
+          //   Icon(
+          //     Icons.home,
+          //     size: 30,
+          //   ),
+          // ),
           getListItem(
               'MY ACCOUNT',
               Icon(
@@ -124,6 +148,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icons.info,
                 size: 30,
               )),
+          getListItem(
+              'LOGOUT',
+              Icon(
+                Icons.exit_to_app,
+                size: 30,
+              )),
         ],
       ),
     );
@@ -145,17 +175,104 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void handleTap(String title) {
     switch (title) {
-      case 'HOME PAGE':
-        Navigator.popAndPushNamed(context, "/");
+      case 'LOGOUT':
+        setState(() {
+          isloading = true;
+        });
+        firebaseAuth.signOut().then((onValue) {
+          Navigator.pushReplacementNamed(context, '/login');
+          isloading = false;
+        });
         break;
       case 'SHOPPING CART':
         Navigator.pushNamed(context, '/cart');
+        break;
+      case 'MY ACCOUNT':
+        Navigator.pushNamed(context, '/account');
         break;
       default:
     }
   }
 
-  Future<void> readPref() async {
-    preferences = await SharedPreferences.getInstance();
+  Future<void> pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    var pickedImg = await _picker.getImage(source: ImageSource.gallery);
+    if (pickedImg != null) {
+      setState(() {
+        photoUrl = pickedImg.path;
+        avatarImg = new File(pickedImg.path);
+      });
+    }
+  }
+
+  getOfflineBody() {
+    return Container(
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  getOnlineBody() {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: MediaQuery.of(context).size.height / 3,
+          child: carousel,
+        ),
+        // new Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: Text('Categories'),
+        // ),
+        Container(
+          height: MediaQuery.of(context).size.height/6,
+          child: HorizontalList(),
+        ),
+        // Expanded(
+        //   child: Container(),
+        // ),
+        // new Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: Text('Recent products'),
+        // ),
+        Container(height: MediaQuery.of(context).size.height*0.26, child: Products()),
+        Expanded(
+          //height: MediaQuery.of(context).size.height/6,
+          child: Center(
+            child: ListTile(
+              title: Text(
+                'All Rights reserved to Denta 2020',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  getPic(BuildContext context, FirebaseProvider bloc) {
+    bloc.user.avatar = avatarImg;
+    return GestureDetector(
+      child: InkWell(
+        onTap: pickImage,
+        child: CircleAvatar(
+          backgroundColor: Colors.white30,
+          child: bloc.user.avatar == null
+              ? Icon(Icons.cloud_upload)
+              : Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: new DecorationImage(
+                      image: new FileImage(bloc.user.avatar),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    );
   }
 }

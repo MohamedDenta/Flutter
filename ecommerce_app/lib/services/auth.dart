@@ -5,10 +5,10 @@ class FBApi {
   static FirebaseAuth _auth = FirebaseAuth.instance;
   static GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  FirebaseUser firebaseUser;
+  static FirebaseUser firebaseUser;
 
   FBApi(FirebaseUser user) {
-    this.firebaseUser = user;
+    firebaseUser = user;
   }
 
   static Future<FBApi> signInWithGoogle() async {
@@ -38,11 +38,11 @@ class FBApi {
 
     return FBApi(user);
   }
-  static Future<bool> isSigned() async{
-    return _googleSignIn.isSignedIn();
-  }
+  // static Future<bool> isSigned() async{
+  //   return _googleSignIn.isSignedIn();
+  // }
 
-  static Future<FBApi> SignInWithEmail(String email,String password) async {
+  static Future<FBApi> signInWithEmail(String email,String password) async {
     FirebaseUser result = await _auth.signInWithEmailAndPassword(email: email, password: password);
     return FBApi(result);
   }

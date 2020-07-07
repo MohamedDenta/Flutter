@@ -1,8 +1,9 @@
-import 'package:ecommerce_app/models/auth.dart';
-import 'package:ecommerce_app/screens/home_screen.dart';
+import 'package:ecommerce_app/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'signup.dart';
@@ -22,266 +23,26 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
   bool _isLoading = false;
   bool isLoged = false;
 
-  @override
-  void initState() {
-    super.initState();
+  bool _isgoogleLoading = false;
+  _LoginWithGoogleState() {
     isLoggedin();
-  }
-
-  Future<bool> _loginUser() async {
-    final api = await FBApi.signInWithGoogle();
-
-    if (api != null) {
-      saveToPreference(api);
-      return true;
-    } else {
-      return false;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    String s = 'Login';
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          "Login",
+          s,
           style: TextStyle(color: Colors.red.shade900),
           textAlign: TextAlign.center,
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: Stack(
-        children: <Widget>[
-          // Image.asset(
-          //   'assets/images/lg.png',
-          //   fit: BoxFit.cover,
-          //   width: double.infinity,
-          //   height: double.infinity,
-          // ),
-          Container(
-            color: Colors.black.withOpacity(0.8),
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Container(
-            alignment: Alignment.topCenter,
-            child: Image.asset(
-              'assets/images/lg.png',
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: MediaQuery.of(context).size.height * 0.3,
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 140),
-              child: Container(
-                alignment: Alignment.center,
-                child: Center(
-                  child: Form(
-                      key: _formKey,
-                      child: ListView(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white.withOpacity(0.5),
-                              elevation: 0.0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: TextFormField(
-                                  controller: _emailTextController,
-                                  decoration: InputDecoration(
-                                      hintText: "email",
-                                      icon: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Icon(Icons.alternate_email),
-                                      )),
-                                  validator: (value) {
-                                    if (value.isNotEmpty) {
-                                      Pattern pattern =
-                                          r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$";
-                                      RegExp exp = new RegExp(pattern);
-                                      if (!exp.hasMatch(value)) {
-                                        return 'invalid email';
-                                      } else {
-                                        return null;
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          //------------- password --------------------
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white.withOpacity(0.5),
-                              elevation: 0.0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: TextFormField(
-                                  controller: _passwordTextController,
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                    hintText: "password",
-                                    icon: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Icon(Icons.lock_outline),
-                                    ),
-                                  ),
-                                  obscureText: true,
-                                  validator: (value) {
-                                    if (value.isEmpty) {
-                                      return 'password is required';
-                                    }
-                                    if (value.length < 6) {
-                                      return 'password must be > 5 characters';
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          //****************login button  */
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.blue.withOpacity(0.8),
-                              elevation: 0.0,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(0.0),
-                                  child: MaterialButton(
-                                    minWidth: MediaQuery.of(context).size.width,
-                                    child: Text(
-                                      'login',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                    onPressed: () {
-                                      FBApi.SignInWithEmail(
-                                          _emailTextController.text,
-                                          _passwordTextController.text);
-                                          isLoggedin();
-                                    },
-                                  )),
-                            ),
-                          ),
-                          // Expanded(child: Container(),),
-
-                          InkWell(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'forget password',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Don\'t have an account?',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SignUp()));
-                            },
-                          ),
-
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Divider(
-                                    height: 3,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  'Other options',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Divider(
-                                    height: 3,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.red.withOpacity(0.8),
-                              elevation: 0.0,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(0.0),
-                                  child: MaterialButton(
-                                    minWidth: MediaQuery.of(context).size.width,
-                                    child: Text(
-                                      'Google',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      _isLoading = true;
-                                      FBApi.signInWithGoogle().then((onValue){
-                                        _isLoading = false;
-                                        Navigator.pushReplacementNamed(context, '/');
-                                      });
-                                    },
-                                  )),
-                            ),
-                          ),
-                        ],
-                      )),
-                ),
-              ),
-            ),
-          ),
-        ],
-
-        //fit: StackFit.expand,
-      ),
+      body: getBody(context),
       bottomNavigationBar: Container(
         // child: Center(
         child: Padding(
@@ -293,11 +54,13 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
     );
   }
 
-  void saveToPreference(FBApi api) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString("id", api.firebaseUser.uid);
-    sharedPreferences.setString("username", api.firebaseUser.displayName);
-    sharedPreferences.setString("photourl", api.firebaseUser.photoUrl);
+  Future<void> saveToPreference() async {
+    firebaseAuth.currentUser().then((onValue) async {
+      sharedPreferences = await SharedPreferences.getInstance();
+      sharedPreferences.setString("email", _emailTextController.text);
+      sharedPreferences.setString("username", onValue.displayName);
+      sharedPreferences.setString("photourl", onValue.photoUrl);
+    });
   }
 
   void saveToPreference2(FirebaseUser user) async {
@@ -309,27 +72,296 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
   }
 
   void isLoggedin() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    await firebaseAuth.currentUser().then((user) {
-      if (user != null) {
+    firebaseAuth.currentUser().then((onValue) {
+      if (onValue == null) {
         setState(() {
-          isLoged = true;
+          _isLoading = false;
         });
-        saveToPreference2(user);
+        print('no user......');
+      } else {
+        saveToPreference().then((onValue) {
+          Navigator.pushReplacementNamed(context, '/');
+        });
       }
     });
-    
-    sharedPreferences = await SharedPreferences.getInstance();
-    isLoged = await FBApi.isSigned();
-    if (isLoged) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
-    }
-    setState(() {
-      _isLoading = false;
-    });
+  }
+
+  Widget getBody(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 140),
+            child: Container(
+              alignment: Alignment.center,
+              child: Center(
+                child: getForm(context),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getCoverImage() {
+    return Container(
+      alignment: Alignment.topCenter,
+      child: Image.asset(
+        'assets/images/lg.png',
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: MediaQuery.of(context).size.height * 0.3,
+      ),
+    );
+  }
+
+  Widget getForm(BuildContext context) {
+    return Form(
+        key: _formKey,
+        child: ListView(
+          children: <Widget>[
+            createField(getEmailForm()),
+            createField(getPasswordField()),
+            //****************login button  */
+            createBtn(getLoginButton(context)),
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'forget password',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ),
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      'Don\'t have an account?',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
+                      textAlign: TextAlign.left,
+                    )
+                  ],
+                ),
+              ),
+              onTap: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => SignUp()));
+              },
+            ),
+
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Divider(
+                      height: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'Other options',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Divider(
+                      height: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              ],
+            ),
+
+            _isgoogleLoading
+                ? Container(
+                    child: Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.red,
+                    ),
+                  ))
+                : createBtn(getGoogleBtn(context)),
+          ],
+        ));
+  }
+
+  Widget getEmailForm() {
+    return TextFormField(
+      controller: _emailTextController,
+      decoration: InputDecoration(
+          hintText: "email",
+          icon: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Icon(Icons.alternate_email),
+          )),
+      validator: (value) {
+        if (value.isNotEmpty) {
+          Pattern pattern =
+              r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$";
+          RegExp exp = new RegExp(pattern);
+          if (!exp.hasMatch(value)) {
+            return 'invalid email';
+          }
+          return null;
+        }
+        return 'please enter email';
+      },
+    );
+  }
+
+  Widget getPasswordField() {
+    return TextFormField(
+      controller: _passwordTextController,
+      keyboardType: TextInputType.text,
+      decoration: InputDecoration(
+        hintText: "password",
+        icon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Icon(Icons.lock_outline),
+        ),
+      ),
+      obscureText: true,
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'password is required';
+        }
+        if (value.length < 6) {
+          return 'password must be > 5 characters';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget createField(Widget fieldForm) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Material(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withOpacity(0.5),
+        elevation: 0.0,
+        child: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: fieldForm,
+        ),
+      ),
+    );
+  }
+
+  Widget getLoginButton(BuildContext context) {
+    return MaterialButton(
+      minWidth: MediaQuery.of(context).size.width,
+      child: Text(
+        'login',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+      onPressed: () {
+        setState(() {
+          _isLoading = true;
+        });
+        FBApi.signInWithEmail(
+                _emailTextController.text, _passwordTextController.text)
+            .then((onValue) {
+          setState(() {
+            _isLoading = false;
+          });
+          isLoggedin();
+        }).catchError((onError) {
+          setState(() {
+            _isLoading = false;
+          });
+          print(onError.toString());
+          PlatformException err = onError;
+          
+          showDialog(context: context , child: AlertDialog(content: Text(err.message),title: Text('login failure' , ),actions: <Widget>[
+            FlatButton(
+              child: Text('ok'),
+              onPressed: (){
+                Navigator.of(context).pop(true);
+              },
+            )
+          ], ));
+          print('....................................');
+        });
+      },
+    );
+  }
+
+  Widget createBtn(Widget btn) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Material(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.blue.withOpacity(0.8),
+        elevation: 0.0,
+        child: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: btn,
+        ),
+      ),
+    );
+  }
+
+  Widget getGoogleBtn(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(20),
+      color: Colors.red.withOpacity(0.8),
+      elevation: 0.0,
+      child: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: MaterialButton(
+            minWidth: MediaQuery.of(context).size.width,
+            child: Text(
+              'Google',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                _isgoogleLoading = true;
+              });
+              FBApi.signInWithGoogle().then((onValue) {
+                setState(() {
+                  _isgoogleLoading = false;
+                });
+
+                Navigator.pushReplacementNamed(context, '/');
+              }).catchError((onError) {
+                setState(() {
+                  _isgoogleLoading = false;
+                });
+                Fluttertoast.showToast(
+                    msg: 'error occured during login! ${onError.toString()}',
+                    backgroundColor: Colors.black38);
+                print(onError.toString());
+              });
+            },
+          )),
+    );
   }
 }

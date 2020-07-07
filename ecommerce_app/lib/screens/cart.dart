@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/enums/appbar_states.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
 import 'package:ecommerce_app/widgets/cart_products.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar.getAppBar(context, 'CART', "cart"),
+      appBar: MyAppBar.getAppBar(context, AppBarStatus.Cart, "cart"),
       body: Cart_products(),
       bottomNavigationBar: new Container(
         color: Colors.white,

@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/screens/product_details.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Products extends StatefulWidget {
@@ -114,6 +115,17 @@ class SingleProd extends StatelessWidget {
         tag: Text(prod_name),
         child: Material(
           child: InkWell(
+            onDoubleTap: () {
+              print('${this.prod_name}');
+              showCupertinoModalPopup(
+                context: context,
+                builder: (context) => Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                  child: getItemWidget(),
+                ),
+              );
+            },
             onTap: () {
               var p = ProductDetails(
                 product_detail_name: prod_name,
@@ -123,35 +135,41 @@ class SingleProd extends StatelessWidget {
               );
               Navigator.pushNamed(context, '/productdetails', arguments: p);
             },
-            child: GridTile(
-              footer: Container(
-                color: Colors.white,
-                child: new Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        prod_name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16.0),
-                      ),
-                    ),
-                    new Text(
-                      '\$$prod_price',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              child: Image.asset(
-                prod_picture,
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: getItemWidget(),
           ),
         ),
+      ),
+    );
+  }
+
+  getItemWidget() {
+    return GridTile(
+      footer: Container(
+        color: Colors.white,
+        child: new Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                prod_name,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                    decoration: TextDecoration.none),
+              ),
+            ),
+            new Text(
+              '\$$prod_price',
+              style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none),
+            )
+          ],
+        ),
+      ),
+      child: Image.asset(
+        prod_picture,
+        fit: BoxFit.contain,
       ),
     );
   }

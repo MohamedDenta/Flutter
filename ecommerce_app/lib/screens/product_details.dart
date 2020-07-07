@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/enums/appbar_states.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
 import 'package:ecommerce_app/widgets/products.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   Widget build(BuildContext context) {
     final ProductDetails arguments = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: MyAppBar.getAppBar(context, 'HOME','Fashapp'),
+      appBar: MyAppBar.getAppBar(context, AppBarStatus.Home,'Fashapp'),
       body: new ListView(
         children: <Widget>[
           new Container(
