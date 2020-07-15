@@ -17,7 +17,7 @@ class _CartState extends State<Cart> {
       appBar: MyAppBar.getAppBar(context, AppBarStatus.Cart, "cart"),
       body: Cart_products(),
       bottomNavigationBar: new Container(
-        color: Colors.white,
+        color: Colors.white, 
         child: Row(
           children: <Widget>[
             Expanded(

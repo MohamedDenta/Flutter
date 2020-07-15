@@ -1,7 +1,11 @@
 import 'package:ecommerce_app/enums/appbar_states.dart';
+import 'package:ecommerce_app/models/item_model.dart';
+import 'package:ecommerce_app/models/provider/cart_provider.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
+import 'package:ecommerce_app/widgets/cart_products.dart';
 import 'package:ecommerce_app/widgets/products.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetails extends StatefulWidget {
   final product_detail_name;
@@ -19,11 +23,15 @@ class ProductDetails extends StatefulWidget {
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
+  bool isFavored = false;
+
+  bool isCarted = false;
+
   @override
   Widget build(BuildContext context) {
     final ProductDetails arguments = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: MyAppBar.getAppBar(context, AppBarStatus.Home,'Fashapp'),
+      appBar: MyAppBar.getAppBar(context, AppBarStatus.Home, 'Fashapp'),
       body: new ListView(
         children: <Widget>[
           new Container(
@@ -75,7 +83,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               getBtn('Quntity'),
             ],
           ),
-          getSecondRow(),
+          getSecondRow(arguments),
           Divider(
             height: 5.0,
           ),
@@ -155,7 +163,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
   }
 
-  Widget getSecondRow() {
+  Widget getSecondRow(ProductDetails arguments) {
+    var bloc = Provider.of<CartProvider>(context);
     return Row(
       children: <Widget>[
         Expanded(
@@ -168,17 +177,34 @@ class _ProductDetailsState extends State<ProductDetails> {
         ),
         new IconButton(
           icon: Icon(
-            Icons.add_shopping_cart,
+            isCarted ? Icons.remove_shopping_cart : Icons.add_shopping_cart,
             color: Colors.red,
           ),
-          onPressed: () {},
+          onPressed: () {
+            bloc.addRemoveToCart(ItemModel(
+              '1', // ************* id **********
+              name: arguments.product_detail_name,
+              price: arguments.product_detail_price,
+              color: '',
+              picture: arguments.product_detail_picture,
+              quantity: 1,
+              size: 'XL',
+            ));
+            setState(() {
+              isCarted = !isCarted;
+            });
+          },
         ),
         new IconButton(
           icon: Icon(
-            Icons.favorite_border,
+            isFavored ? Icons.favorite : Icons.favorite_border,
             color: Colors.red,
           ),
-          onPressed: () {},
+          onPressed: () {
+            setState(() {
+              isFavored = !isFavored;
+            });
+          },
         ),
       ],
     );

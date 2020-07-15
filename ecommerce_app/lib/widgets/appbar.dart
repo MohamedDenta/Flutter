@@ -1,5 +1,5 @@
 import 'package:ecommerce_app/enums/appbar_states.dart';
-import 'package:ecommerce_app/models/firebase_provider.dart';
+import 'package:ecommerce_app/models/provider/firebase_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

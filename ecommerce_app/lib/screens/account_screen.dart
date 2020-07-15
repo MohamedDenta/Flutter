@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:ecommerce_app/enums/appbar_states.dart';
-import 'package:ecommerce_app/models/firebase_provider.dart';
+import 'package:ecommerce_app/models/provider/firebase_provider.dart';
+import 'package:ecommerce_app/models/user.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:open_appstore/open_appstore.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
@@ -13,14 +19,10 @@ class _AccountScreenState extends State<AccountScreen> {
   var avatarImg;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<FirebaseProvider>(context, listen: false);
+
+    //bloc.updateUser(bloc.user);
     return Scaffold(
       appBar: MyAppBar.getAppBar(context, AppBarStatus.Account, 'My Account'),
       body: Column(
@@ -33,7 +35,7 @@ class _AccountScreenState extends State<AccountScreen> {
             child: getListInfo(),
           ),
           Container(
-            height: MediaQuery.of(context).size.height*0.17,
+            height: MediaQuery.of(context).size.height * 0.17,
             child: getFooter(),
           ),
         ],
@@ -43,29 +45,37 @@ class _AccountScreenState extends State<AccountScreen> {
 
   getCover(FirebaseProvider b) {
     return Container(
-      height: MediaQuery.of(context).size.height / 3,
+      height: MediaQuery.of(context).size.height * 0.3,
       width: MediaQuery.of(context).size.width,
       color: Colors.white10,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
-            child: CircleAvatar(
-              minRadius: 1.0,
-              backgroundColor: Colors.white30,
-              child: b.user.avatar == null
-                  ? Icon(Icons.cloud_upload)
-                  : Container(
-                      // width: 200,
-                      // height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                          image: new FileImage(b.user.avatar),
-                          fit: BoxFit.cover,
+            child: InkWell(
+              onTap: pickImage,
+              child: CircleAvatar(
+                //backgroundImage: new FileImage(b.user.avatar),
+                minRadius: 20,
+                maxRadius: 40,
+                backgroundColor: Colors.white30,
+                child: avatarImg == null
+                    ? Icon(
+                        Icons.person_pin,
+                        size: 40,
+                      )
+                    : Container(
+                        // width: 200,
+                        // height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: new DecorationImage(
+                            image: new FileImage(avatarImg),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
+              ),
             ),
           ),
           b.user.name == null ? Text('') : Text(b.user.name),
@@ -78,7 +88,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   getListInfo() {
-    
     return ListView(
       children: <Widget>[
         // ListTile(
@@ -90,31 +99,31 @@ class _AccountScreenState extends State<AccountScreen> {
         //   leading: Icon(Icons.favorite),
         // ),
         ListTile(
-          title: Text('Yours'),
+          title: Text('Personal Info'),
           leading: Icon(Icons.person_pin),
-          onTap: (){
+          onTap: () {
             Navigator.of(context).pushNamed('/yours');
           },
         ),
 
+        // ListTile(
+        //   title: Text('My address book'),
+        //   leading: Icon(Icons.library_books),
+        //   onTap: () {
+        //     Navigator.of(context).pushNamed('/addressbook');
+        //   },
+        // ),
         ListTile(
-          title: Text('My address book'),
-          leading: Icon(Icons.library_books),
-          onTap: (){
-            Navigator.of(context).pushNamed('/addressbook');
-          },
-        ),
-        ListTile(
-          title: Text('Contry and languages'),
+          title: Text('Country and languages'),
           leading: Icon(Icons.call_missed_outgoing),
-          onTap: (){
+          onTap: () {
             Navigator.of(context).pushNamed('/countrylang');
           },
         ),
-        ListTile(
-          title: Text('Communication Preferences'),
-          leading: Icon(Icons.add_alert),
-        ),
+        // ListTile(
+        //   title: Text('Communication Preferences'),
+        //   leading: Icon(Icons.add_alert),
+        // ),
         ListTile(
           title: Text('Help Center'),
           leading: Icon(Icons.info_outline),
@@ -122,6 +131,10 @@ class _AccountScreenState extends State<AccountScreen> {
         ListTile(
           title: Text('Share with friends'),
           leading: Icon(Icons.share),
+          onTap: () async {
+            await Share.share('rate us on google play \n'
+                'https://play.google.com/store/apps/details?id=com.denta.azkar');
+          },
         ),
         ListTile(
           title: Text('Leave feedback'),
@@ -130,6 +143,9 @@ class _AccountScreenState extends State<AccountScreen> {
         ListTile(
           title: Text('Rate us on play store'),
           leading: Icon(Icons.favorite),
+          onTap: () async {
+            OpenAppstore.launch(androidAppId: "com.denta.azkar", iOSAppId: "");
+          },
         ),
       ],
     );
@@ -158,5 +174,21 @@ class _AccountScreenState extends State<AccountScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> pickImage() async {
+    final userBloc = Provider.of<FirebaseProvider>(context);
+
+    final ImagePicker _picker = ImagePicker();
+    var pickedImg = await _picker.getImage(source: ImageSource.gallery);
+    if (pickedImg != null) {
+      setState(() {
+        avatarImg = new File(pickedImg.path);
+        userBloc.updateUser(User(
+            name: userBloc.user.name,
+            email: userBloc.user.email,
+            avatar: ''));
+      });
+    }
   }
 }

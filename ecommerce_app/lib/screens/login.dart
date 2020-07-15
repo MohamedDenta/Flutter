@@ -79,9 +79,9 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
         });
         print('no user......');
       } else {
-        saveToPreference().then((onValue) {
-          Navigator.pushReplacementNamed(context, '/');
-        });
+        //saveToPreference().then((onValue) {
+        Navigator.pushReplacementNamed(context, '/');
+        //});
       }
     });
   }
@@ -293,15 +293,23 @@ class _LoginWithGoogleState extends State<LoginWithGoogle> {
           });
           print(onError.toString());
           PlatformException err = onError;
-          
-          showDialog(context: context , child: AlertDialog(content: Text(err.message),title: Text('login failure' , ),actions: <Widget>[
-            FlatButton(
-              child: Text('ok'),
-              onPressed: (){
-                Navigator.of(context).pop(true);
-              },
-            )
-          ], ));
+
+          showDialog(
+              context: context,
+              child: AlertDialog(
+                content: Text(err.message),
+                title: Text(
+                  'login failure',
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('ok'),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  )
+                ],
+              ));
           print('....................................');
         });
       },

@@ -1,7 +1,8 @@
-import 'package:ecommerce_app/models/connectivity.dart';
-import 'package:ecommerce_app/models/firebase_provider.dart';
+import 'package:ecommerce_app/models/provider/cart_provider.dart';
+import 'package:ecommerce_app/models/provider/connectivity.dart';
+import 'package:ecommerce_app/models/provider/firebase_provider.dart';
 import 'package:ecommerce_app/screens/account_screen.dart';
-import 'package:ecommerce_app/screens/cart.dart';
+import 'package:ecommerce_app/screens/cart_screen.dart';
 import 'package:ecommerce_app/screens/login.dart';
 import 'package:ecommerce_app/screens/product_details.dart';
 import 'package:ecommerce_app/screens/yours_screen.dart';
@@ -21,6 +22,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => FirebaseProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(),
         )
       ],
       child: MyApp(),

@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:ecommerce_app/enums/appbar_states.dart';
 import 'package:ecommerce_app/enums/connectivity_status.dart';
-import 'package:ecommerce_app/models/connectivity.dart';
-import 'package:ecommerce_app/models/firebase_provider.dart';
+import 'package:ecommerce_app/models/provider/connectivity.dart';
+import 'package:ecommerce_app/models/provider/firebase_provider.dart';
+import 'package:ecommerce_app/models/user.dart';
 import 'package:ecommerce_app/widgets/appbar.dart';
 import 'package:ecommerce_app/widgets/horizontal_list_view.dart';
 import 'package:ecommerce_app/widgets/products.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
@@ -27,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   String username;
   String photoUrl;
-  File avatarImg;
+  File avatarImg ;
   FirebaseUser currentUser;
   Widget carousel = Container(
     child: new Carousel(
@@ -117,24 +119,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icons.account_circle,
                 size: 30,
               )),
-          getListItem(
-              'MY ORDERS',
-              Icon(
-                Icons.shopping_basket,
-                size: 30,
-              )),
+          // getListItem(
+          //     'MY ORDERS',
+          //     Icon(
+          //       Icons.shopping_basket,
+          //       size: 30,
+          //     )),
+
           getListItem(
               'SHOPPING CART',
               Icon(
                 Icons.dashboard,
                 size: 30,
               )),
-          getListItem(
-              'FAVOURITES',
-              Icon(
-                Icons.favorite,
-                size: 30,
-              )),
+          // getListItem(
+          //     'FAVOURITES',
+          //     Icon(
+          //       Icons.favorite,
+          //       size: 30,
+          //     )),
           Divider(),
           getListItem(
               'SETTINGS',
@@ -190,19 +193,65 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'MY ACCOUNT':
         Navigator.pushNamed(context, '/account');
         break;
+      case 'ABOUT':
+        var d = AboutDialog(
+          applicationIcon: Image.asset('assets/icons/app.png'),
+          applicationLegalese: 'denta.com',
+          applicationName: 'Denta',
+          applicationVersion: '1.0.0',
+        );
+        showDialog(context: context, child: d);
+        break;
       default:
     }
   }
 
   Future<void> pickImage() async {
+    final userBloc = Provider.of<FirebaseProvider>(context);
+
     final ImagePicker _picker = ImagePicker();
     var pickedImg = await _picker.getImage(source: ImageSource.gallery);
     if (pickedImg != null) {
       setState(() {
-        photoUrl = pickedImg.path;
-        avatarImg = new File(pickedImg.path);
+      photoUrl = pickedImg.path;
+      avatarImg = new File(pickedImg.path);
+
+      userBloc.updateUser(User(name: userBloc.user.name, avatar: ''));
+      //await uploadAvatar(userBloc.user.email , avatarImg);
       });
     }
+  }
+
+  Future<String> uploadAvatar(String imageName, File avatar) async {
+    try {
+      final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+      final storageRef = firebaseStorage.ref().child('users/$imageName');
+      final StorageUploadTask task = storageRef.putFile(avatar);
+      if (task.isComplete) {
+        return storageRef.getDownloadURL();
+      } else {
+        return "";
+      }
+    } catch (e) {
+      print("Erooooor " + e.toString());
+    }
+
+    // StorageTaskSnapshot snapshot = await firebaseStorage
+    //     .ref()
+    //     .child('users/${_emailTextController.text}')
+    //     .putFile(avatar)
+    //     .onComplete
+    //     .catchError((onError){
+    //       print(onError.toString());
+    //     });
+
+    // if (snapshot.error == null) {
+    //   final Future<String> downloadUrl = snapshot.ref.getDownloadURL();
+    //   return downloadUrl;
+    // } else {
+    //   return "";
+    // }
+    return "";
   }
 
   getOfflineBody() {
@@ -217,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: <Widget>[
         Container(
-          height: MediaQuery.of(context).size.height / 3,
+          height: MediaQuery.of(context).size.height * 0.3,
           child: carousel,
         ),
         // new Padding(
@@ -225,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
         //   child: Text('Categories'),
         // ),
         Container(
-          height: MediaQuery.of(context).size.height/6,
+          height: MediaQuery.of(context).size.height * 0.16,
           child: HorizontalList(),
         ),
         // Expanded(
@@ -235,9 +284,11 @@ class _HomeScreenState extends State<HomeScreen> {
         //   padding: const EdgeInsets.all(8.0),
         //   child: Text('Recent products'),
         // ),
-        Container(height: MediaQuery.of(context).size.height*0.26, child: Products()),
         Expanded(
-          //height: MediaQuery.of(context).size.height/6,
+          child: Container(child: Products()),
+        ),
+        Container(
+          height: MediaQuery.of(context).size.height * 0.08,
           child: Center(
             child: ListTile(
               title: Text(
@@ -252,13 +303,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getPic(BuildContext context, FirebaseProvider bloc) {
-    bloc.user.avatar = avatarImg;
+    // bloc.user.avatar = avatarImg;
     return GestureDetector(
       child: InkWell(
         onTap: pickImage,
         child: CircleAvatar(
           backgroundColor: Colors.white30,
-          child: bloc.user.avatar == null
+          child: avatarImg == null
               ? Icon(Icons.cloud_upload)
               : Container(
                   width: 200,
@@ -266,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: new DecorationImage(
-                      image: new FileImage(bloc.user.avatar),
+                      image: new FileImage(avatarImg),
                       fit: BoxFit.cover,
                     ),
                   ),

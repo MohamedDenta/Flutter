@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:ecommerce_app/services/user_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +30,8 @@ class _SignUpState extends State<SignUp> {
   bool hidePass2 = true;
   String groupValue = "male";
 
+  static File avatar;
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -41,15 +47,15 @@ class _SignUpState extends State<SignUp> {
           centerTitle: true,
         ),
         body: getBody(),
-        bottomNavigationBar: Container(
-          // child: Center(
-          child: Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : null),
-          //),
-        ),
+        // bottomNavigationBar: Container(
+        //   // child: Center(
+        //   child: Padding(
+        //       padding: const EdgeInsets.all(0.0),
+        //       child: _isLoading
+        //           ? Center(child: CircularProgressIndicator())
+        //           : null),
+        //   //),
+        // ),
       ),
       onWillPop: () => _onBackPressed(),
     );
@@ -76,36 +82,36 @@ class _SignUpState extends State<SignUp> {
                 email: _emailTextController.text,
                 password: _passwordTextController.text)
             .then((user) {
-          print('then reister');
-          user.sendEmailVerification();
+          print('then reister ${user.toString()}');
+          //user.sendEmailVerification();
           UserUpdateInfo info = new UserUpdateInfo();
           info.displayName = _nameTextController.text;
-          info.photoUrl =
-              'https://lh3.googleusercontent.com/a-/AOh14GjRNDn2Z2BiLtKNwhTAq-BhwxM2LFTfsAA8_5bvMw=s96-c';
+          info.photoUrl = null;
           user.updateProfile(info).then((onValue) {
-            print('update done &&&');
+            print('**************** update done ********************');
+          }).catchError((onError) {
+            print(onError.toString());
           });
-          /**
-           * .then((onValue){
-            Scaffold.of(context).showSnackBar(SnackBar(content: Text('we sent verifivation email to you .'),));
-          });
-           */
-          _userServices.createUser(user.uid.toString(), {
+          Map<String, String> m = {
             "username": _nameTextController.text.toString(),
-            "email": user.email,
-            "userId": user.uid,
+            "email": _emailTextController.text,
             "gender": gender,
-          });
+            "avatar": "",
+          };
+          _userServices.createUser(context,_emailTextController.text, m);
+        }).then((onValue) {
+          print('create user ${onValue.toString()}');
+          Navigator.pushReplacementNamed(context, '/');
         }).catchError((err) {
-          print(err.toString());
+          print("*-/-*-*- " + err.toString());
           setState(() {
             _isLoading = false;
           });
-          Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text(err.toString()),
-          ));
+          // Scaffold.of(context).showSnackBar(SnackBar(
+          //   content: Text(err.toString()),
+          // ));
         });
-        Navigator.pushReplacementNamed(context, '/login');
+
       } else {
         //firebaseAuth.signOut();
         print('already logged in');
@@ -118,9 +124,43 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  Widget circleAvatar() {
+    return GestureDetector(
+      child: InkWell(
+        // onTap: pickImage,
+        child: CircleAvatar(
+          backgroundColor: Colors.white30,
+          minRadius: 40,
+          maxRadius: 50,
+          child: avatar == null
+              ? IconButton(
+                  icon: Icon(Icons.verified_user),
+                  onPressed: () {},
+                )
+              : Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: new DecorationImage(
+                      image: FileImage(avatar),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
   getBody() {
     return Stack(
       children: <Widget>[
+        Container(
+          alignment: Alignment.topCenter,
+          padding: const EdgeInsets.only(top: 40),
+          child: circleAvatar(),
+        ),
         Center(
           child: Padding(
             padding: const EdgeInsets.only(top: 140),
@@ -156,8 +196,14 @@ class _SignUpState extends State<SignUp> {
             ),
             getPasswordField(),
             getConfirmPassword(),
-            getSignupBtn(),
-            getSigninBtn(),
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    children: <Widget>[
+                      getSignupBtn(),
+                      getSigninBtn(),
+                    ],
+                  )
           ],
         ));
   }
@@ -426,5 +472,40 @@ class _SignUpState extends State<SignUp> {
           ),
         ) ??
         false;
+  }
+
+  Future<void> pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    var pickedImg = await _picker.getImage(source: ImageSource.gallery);
+    if (pickedImg != null) {
+      setState(() {
+        //photoUrl = pickedImg.path;
+        avatar = new File(pickedImg.path);
+      });
+    }
+  }
+
+  Future<String> uploadAvatar() async {
+    final imageName = _emailTextController.text;
+    final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+    final storageRef = firebaseStorage.ref().child('users').child(imageName);
+    final StorageUploadTask task = storageRef.putFile(avatar);
+
+    // StorageTaskSnapshot snapshot = await firebaseStorage
+    //     .ref()
+    //     .child('users/${_emailTextController.text}')
+    //     .putFile(avatar)
+    //     .onComplete
+    //     .catchError((onError){
+    //       print(onError.toString());
+    //     });
+
+    // if (snapshot.error == null) {
+    //   final Future<String> downloadUrl = snapshot.ref.getDownloadURL();
+    //   return downloadUrl;
+    // } else {
+    //   return "";
+    // }
+    return "";
   }
 }
